@@ -1,42 +1,80 @@
-from class_image_system import Image_system
+import requests
+import json
 
-image_system = Image_system()
-stop = False
-image_system.load_settings()
+class Image_system:
+    def __init__(self):
+        self._quantity = None
+        self._image_type = None
+        self._page = None
+        self._image_name = None
+        self._folder_path = None
 
-
-while stop == False:
-    print('1 - Install image')
-    print('2 - Settings')
-    print('3 - Exit')
+    @property
+    def quantity(self):
+        return self._quantity
     
-    action = int(input('Enter num: '))
+    @quantity.setter
+    def quantity(self, new_quantity):
+        self._quantity = new_quantity
+    
+    @property
+    def image_type(self):
+        return self._image_type
+    
+    @property
+    def page(self):
+        return self._page
+    
+    @page.setter
+    def page(self, value):
+        self._page = value
+    
+    @property
+    def image_name(self):
+        return self._image_name
+    
+    @property
+    def folder_path(self):
+        return self._folder_path
+    
+    @folder_path.setter
+    def folder_path(self,new_folder):
+        self._folder_path = new_folder
+    
 
-    if action == 1:
-        image = None
-        print('1 - Enter name picture')
-        print('2 - Take next picture')
-        action_1 = int(input('Enter num: '))
-        if action_1 == 1:
-            image_name = input('Enter name of picture: ')
-            image = image_name
-            image_system.response_image(image_name,image_system.folder_path, image_system.image_type, image_system.page, image_system.quantity)
+    def response_image(self,image_name,folder_path,image_type,page,quantity):
+        resp = requests.get(f'https://pixabay.com/api/?key=49740785-6c845c285d0d4b2a41b9bde5e&q={image_name}&image_type={image_type}&page={page}&per_page={quantity}')
+        data = resp.json()
+        
+        if not data['hits']:
+            print('No images found for this search!')
+            return
+        
+        link_image = data['hits'][0]['largeImageURL']
+        
+        try:
+            resp = requests.get(link_image)
+            img_binary = resp.content
+            with open(folder_path, 'wb') as file:
+                file.write(img_binary)
+        except:
+            print('Something wrong... ')
 
-        elif action_1 == 2:
-            image_system.page += 1
-            image_system.response_image(image_name,image_system.folder_path, image_system.image_type, image_system.page, image_system.quantity)
+    def save_settings(self):
+        settings = {
+            'folder_path': self._folder_path,
+            'quantity': self._quantity,
+            'page': self._page,
+            'image_type': self._image_type
+        }
+        
+        with open('./lesson40_41/homework/setting.json', 'w') as file:
+            json.dump(settings, file, indent=4)
 
-    elif action == 2:
-        print('1 - Edit folder')
-        print('2 - Enter how much picture(default -> 1)')
-        action_2 = int(input('Enter num: '))
-        if action_2 == 1:
-            new_folder = input('Enter path to folder: ')
-            image_system.folder_path = new_folder
-        elif action_2 == 2:
-            quantity = int(input('Enter how much picture: '))
-            image_system.quantity = quantity
-
-    elif action == 3:
-        image_system.save_settings()
-        stop = True
+    def load_settings(self):
+        with open('./lesson40_41/homework/setting.json', 'r') as file:
+            settings = json.load(file)
+            self._folder_path = settings.get('folder_path', './')
+            self._quantity = settings.get('quantity', 1)
+            self._page = settings.get('page', 1)
+            self._image_type = settings.get('image_type', 'photo')

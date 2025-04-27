@@ -43,7 +43,7 @@ class Image_system:
     
 
     def response_image(self,image_name,folder_path,image_type,page,quantity):
-        resp = requests.get(f'https://pixabay.com/api/?key=49740785-6c845c285d0d4b2a41b9bde5e&q={image_name}&image_type={image_type}&page={page}&per_page={quantity}')
+        resp = requests.get(f'https://pixabay.com/api/?key=key&q={image_name}&image_type={image_type}&page={page}&per_page={quantity}')
         data = resp.json()
         
         if not data['hits']:
@@ -68,11 +68,11 @@ class Image_system:
             'image_type': self._image_type
         }
         
-        with open('./lesson40_41/homework/setting.json', 'w') as file:
+        with open('namefile.json', 'w') as file:
             json.dump(settings, file, indent=4)
 
     def load_settings(self):
-        with open('./lesson40_41/homework/setting.json', 'r') as file:
+        with open('namefile.json', 'r') as file:
             settings = json.load(file)
             self._folder_path = settings.get('folder_path', './')
             self._quantity = settings.get('quantity', 1)

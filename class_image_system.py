@@ -18,20 +18,12 @@ class Image_system:
         self._quantity = new_quantity
     
     @property
-    def image_type(self):
-        return self._image_type
-    
-    @property
     def page(self):
         return self._page
     
     @page.setter
     def page(self, value):
         self._page = value
-    
-    @property
-    def image_name(self):
-        return self._image_name
     
     @property
     def folder_path(self):
